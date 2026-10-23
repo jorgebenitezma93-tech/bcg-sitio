@@ -1,0 +1,191 @@
+---
+import { clients } from '../data/clients';
+import { testimonialsSection } from '../data/testimonials';
+
+const list = clients.filter((c) => c.enabled !== false);
+---
+
+<section id="clientes" class="clients section" aria-labelledby="clientes-titulo">
+  <div class="container">
+    <header class="section-head">
+      <p class="label label--copper reveal">Clientes e instituciones</p>
+      <h2 id="clientes-titulo" class="reveal" style="--d:.06s">Instituciones que han confiado en nosotros</h2>
+    </header>
+
+    <ul class="clients__grid">
+      {
+        list.map((c, i) => (
+          <li class="reveal" style={`--d:${i * 0.08}s`}>
+            <article class="client" tabindex="0" aria-label={`${c.name}. ${c.sector}. ${c.project}`}>
+              <div class="client__inner">
+                <div class="client__face client__front">
+                  {c.logo ? (
+                    <img class="client__logo" src={c.logo} alt={c.name} loading="lazy" decoding="async" />
+                  ) : (
+                    <p class="client__mark">{c.name}</p>
+                  )}
+                  <p class="label">{c.sector}</p>
+                  <span class="client__hint" aria-hidden="true">
+                    Ver proyecto <i></i>
+                  </span>
+                </div>
+                <div class="client__face client__back">
+                  <p class="label">Proyecto · {c.name}</p>
+                  <p class="client__project">{c.project}</p>
+                  {c.topics && (
+                    <ul class="client__topics">
+                      {c.topics.map((t) => (
+                        <li>{t}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      testimonialsSection.enabled && (
+        <div class="testimonials">
+          <h3>{testimonialsSection.title}</h3>
+          <div class="testimonials__grid">
+            {testimonialsSection.items.map((t) => (
+              <figure class="testimonial">
+                <blockquote>{t.quote}</blockquote>
+                <figcaption>
+                  {t.author} · {t.organization}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .clients { background: var(--ivory); border-top: 1px solid var(--line); }
+  .clients__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: clamp(1rem, 2vw, 1.75rem);
+  }
+  .client {
+    perspective: 1400px;
+    height: 17rem;
+    outline-offset: 4px;
+  }
+  .client__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.85s var(--ease);
+  }
+  .client__face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .client__front { background: #fbfaf7; }
+  .client__mark {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: clamp(1.6rem, 1.2rem + 1vw, 2.1rem);
+    line-height: 1.12;
+    color: var(--ink);
+  }
+  .client__logo { max-height: 4rem; width: auto; object-fit: contain; object-position: left; }
+  .client__front .label { margin-top: auto; }
+  .client__hint {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--copper-deep);
+  }
+  .client__hint i {
+    width: 14px;
+    height: 1px;
+    background: currentColor;
+    position: relative;
+    transition: width 0.3s var(--ease);
+  }
+  .client:hover .client__hint i { width: 24px; }
+
+  .client__back {
+    transform: rotateY(180deg);
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--ivory);
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+  .client__back .label { color: var(--copper-light); }
+  .client__project {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    line-height: 1.4;
+    color: var(--ivory);
+  }
+
+  .client__topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto; }
+  .client__topics li {
+    padding: 0.25rem 0.6rem;
+    border: 1px solid rgba(217, 210, 199, 0.4);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    color: var(--ivory);
+  }
+
+  @media (hover: hover) {
+    .client:hover .client__inner { transform: rotateY(180deg); }
+  }
+  .client:focus-within .client__inner,
+  .client.is-flipped .client__inner { transform: rotateY(180deg); }
+
+  /* Movimiento reducido: sin giro 3D; se muestra el detalle al interactuar */
+  @media (prefers-reduced-motion: reduce) {
+    .client__inner { transform: none !important; transform-style: flat; }
+    .client__front, .client__back { backface-visibility: visible; transform: none; transition: opacity 0.2s; }
+    .client__back { opacity: 0; }
+    .client:hover .client__back, .client:focus-within .client__back, .client.is-flipped .client__back { opacity: 1; }
+  }
+
+  /* Testimonios (ocultos mientras enabled = false en src/data/testimonials.ts) */
+  .testimonials { margin-top: clamp(3rem, 6vw, 5rem); }
+  .testimonials__grid { display: grid; gap: 1.5rem; margin-top: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .testimonial { margin: 0; padding: 1.75rem; border-left: 2px solid var(--copper); background: #fbfaf7; }
+  .testimonial blockquote { margin: 0 0 1rem; font-family: var(--font-serif); font-size: 1.25rem; }
+  .testimonial figcaption { color: var(--slate); font-size: 0.9rem; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.client').forEach((card) => {
+    const toggle = () => card.classList.toggle('is-flipped');
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+    card.addEventListener('blur', () => card.classList.remove('is-flipped'));
+  });
+</script>

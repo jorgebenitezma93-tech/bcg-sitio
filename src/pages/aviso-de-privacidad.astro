@@ -1,0 +1,102 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, isSet } from '../data/site';
+
+const email = isSet(site.contact.email) ? site.contact.email : '[CORREO DE CONTACTO — completar en src/data/site.ts]';
+---
+
+<Base
+  title="Aviso de privacidad — Benítez Consulting Group"
+  description="Aviso de privacidad simplificado de Benítez Consulting Group, S.A.S.: responsable, datos recabados, finalidades y ejercicio de derechos ARCO."
+  solidNav
+>
+  <article class="legal section">
+    <div class="container legal__wrap">
+      <p class="label label--copper">Aviso de privacidad</p>
+      <h1>Aviso de privacidad</h1>
+      <p class="legal__date">Última actualización: 19 de octubre de 2026</p>
+
+      <aside class="legal__warn" role="note">
+        <strong>Borrador para revisión legal.</strong> Este aviso es una versión simplificada, elaborada con base en la
+        Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP) y su normativa. Debe
+        revisarlo un abogado antes de publicarlo, y completar los datos marcados entre corchetes. Elimine este recuadro
+        al publicar.
+      </aside>
+
+      <h2>1. Responsable del tratamiento</h2>
+      <p>
+        {site.legalName} (en adelante, «Benítez Consulting Group») es responsable del tratamiento de sus datos
+        personales. Domicilio para efectos de este aviso: <mark>[DOMICILIO LEGAL — completar; la ley exige indicarlo]</mark>.
+        Correo de contacto para asuntos de privacidad: {email}.
+      </p>
+
+      <h2>2. Datos personales que recabamos</h2>
+      <p>
+        A través del formulario de contacto recabamos: nombre, organización (opcional), correo electrónico, área de
+        interés, asunto (opcional) y el contenido del mensaje que usted escriba. No solicitamos datos personales
+        sensibles ni datos financieros o patrimoniales. Le pedimos no incluirlos en su mensaje.
+      </p>
+
+      <h2>3. Finalidades</h2>
+      <p>Usamos sus datos únicamente para:</p>
+      <ul>
+        <li>Responder su solicitud de información o de diagnóstico.</li>
+        <li>Evaluar si podemos atender su caso y dar seguimiento a la conversación.</li>
+        <li>Cumplir obligaciones legales aplicables.</li>
+      </ul>
+      <p>No utilizamos sus datos para mercadotecnia ni publicidad, ni los vendemos.</p>
+
+      <h2>4. Transferencias y encargados</h2>
+      <p>
+        No transferimos sus datos personales a terceros, salvo que lo requiera una autoridad competente. Para recibir
+        los mensajes del formulario podemos utilizar un proveedor de servicios (como Formspree) que actúa como
+        encargado y puede procesar la información en servidores ubicados fuera de México. <mark>[Confirmar proveedor
+        definitivo.]</mark>
+      </p>
+
+      <h2>5. Derechos ARCO</h2>
+      <p>
+        Usted puede ejercer sus derechos de acceso, rectificación, cancelación y oposición (ARCO), así como revocar su
+        consentimiento o limitar el uso de sus datos. Envíe su solicitud a {email} con: su nombre, un medio para
+        responderle, la descripción clara de los datos y del derecho que desea ejercer, y copia de una identificación
+        oficial. Le responderemos en los plazos que establece la ley.
+      </p>
+
+      <h2>6. Cookies y tecnologías de rastreo</h2>
+      <p>
+        Este sitio no utiliza cookies de rastreo ni herramientas de analítica. Las tipografías se cargan desde Google
+        Fonts, por lo que Google puede recibir su dirección IP al servir esos archivos. El cuestionario «¿Por dónde
+        empiezo?» opera en su navegador y no envía ni guarda sus respuestas.
+      </p>
+
+      <h2>7. Cambios a este aviso</h2>
+      <p>
+        Cualquier modificación se publicará en esta misma página, con su fecha de actualización. Si considera que su
+        derecho de protección de datos ha sido vulnerado, puede acudir a la autoridad competente en la materia.
+      </p>
+
+      <p class="legal__back"><a class="u-draw" href="/">← Volver al inicio</a></p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .legal { padding-top: calc(var(--nav-h) + clamp(3rem, 6vw, 5rem)); background: var(--ivory); }
+  .legal__wrap { max-width: 50rem; }
+  .legal h1 { margin: 0.8rem 0 0.6rem; }
+  .legal__date { color: var(--slate); font-size: 0.9375rem; margin-bottom: 2rem; }
+  .legal h2 { margin: 2.5rem 0 0.8rem; font-size: clamp(1.3rem, 1.1rem + 0.7vw, 1.65rem); }
+  .legal ul { margin: 0 0 1em 1.2rem; list-style: disc; }
+  .legal li { margin-bottom: 0.3rem; }
+  .legal__warn {
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 1rem;
+    background: #fff;
+    border: 1px solid var(--copper);
+    border-left-width: 4px;
+    border-radius: var(--radius);
+    font-size: 0.9688rem;
+  }
+  mark { background: rgba(178, 104, 60, 0.16); color: var(--ink); padding: 0 0.25em; }
+  .legal__back { margin-top: 3rem; }
+</style>

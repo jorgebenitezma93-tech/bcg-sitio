@@ -1,0 +1,266 @@
+---
+import { areas } from '../data/areas';
+
+const A = {
+  ing: areas[0].name,
+  cie: areas[1].name,
+  tec: areas[2].name,
+  aca: areas[3].name,
+};
+
+// Todo el cuestionario vive en el cliente: no se envía ni se guarda ninguna respuesta.
+const quiz = {
+  areas: {
+    ing: { name: A.ing, why: 'Su caso se resuelve con ensayos, análisis de materiales y criterio de ingeniería.' },
+    cie: { name: A.cie, why: 'Su caso necesita criterio científico: un dictamen, una metodología o la interpretación de resultados.' },
+    tec: { name: A.tec, why: 'Su caso necesita evaluar, especificar o implementar una solución tecnológica con sustento técnico.' },
+    aca: { name: A.aca, why: 'Su caso es de formación, diseño curricular o apoyo a la investigación y la publicación.' },
+  },
+  questions: [
+    {
+      id: 'org',
+      title: '¿Qué tipo de organización es la suya?',
+      options: [
+        { label: 'Industria o manufactura', give: { ing: 1, tec: 1 } },
+        { label: 'Institución educativa o de investigación', give: { aca: 1, cie: 1 } },
+        { label: 'Salud, gobierno u organismo público', give: { cie: 1, tec: 1 } },
+        { label: 'Empresa de servicios o comercial', give: { tec: 1 } },
+        { label: 'Otra organización o persona física', give: { cie: 1 } },
+      ],
+    },
+    {
+      id: 'problem',
+      title: '¿Qué tipo de problema necesita resolver?',
+      options: [
+        { label: 'Una pieza, material o proceso falla o no rinde', give: { ing: 3 } },
+        { label: 'Necesito una opinión o dictamen con respaldo científico', give: { cie: 3 } },
+        { label: 'Debo elegir, especificar o implementar una tecnología, proceso o solución digital', give: { tec: 3 } },
+        { label: 'Debo formar a mi equipo o apoyar docencia e investigación', give: { aca: 3 } },
+      ],
+    },
+    {
+      id: 'urgency',
+      title: '¿Con qué urgencia lo necesita?',
+      options: [
+        { label: 'Es urgente: ya hay un daño o una fecha límite cercana', next: 'Le sugerimos escribir hoy y marcar el caso como urgente para priorizar el diagnóstico.' },
+        { label: 'Este trimestre', next: 'Describa el caso y le indicamos con franqueza el alcance y los tiempos probables.' },
+        { label: 'Estoy explorando opciones', next: 'Cuéntenos el contexto; podemos orientarle sin compromiso sobre por dónde empezar.' },
+      ],
+    },
+  ],
+};
+---
+
+<section id="donde-empiezo" class="quiz section" aria-labelledby="quiz-titulo">
+  <div class="container quiz__grid">
+    <header class="section-head quiz__head">
+      <p class="label label--copper reveal">¿Por dónde empiezo?</p>
+      <h2 id="quiz-titulo" class="reveal" style="--d:.06s">Tres preguntas para orientar su caso.</h2>
+      <p class="reveal" style="--d:.12s">
+        Sus respuestas se procesan en su navegador. No se envían ni se guardan.
+      </p>
+    </header>
+
+    <div class="quiz__box reveal" data-quiz>
+      <div class="quiz__progress" aria-hidden="true"><span data-qbar></span></div>
+      <p class="label quiz__step" data-qstep aria-live="polite"></p>
+
+      <form data-qform novalidate>
+        <fieldset class="quiz__fieldset" data-qfieldset>
+          <legend class="quiz__legend" data-qlegend tabindex="-1"></legend>
+          <div class="quiz__options" data-qoptions></div>
+        </fieldset>
+        <div class="quiz__nav">
+          <button type="button" class="btn btn--ghost" data-qback hidden>Atrás</button>
+          <button type="submit" class="btn" data-qnext disabled>Continuar</button>
+        </div>
+      </form>
+
+      <div class="quiz__result" data-qresult hidden tabindex="-1" aria-live="polite">
+        <p class="label label--copper">Recomendación</p>
+        <h3 data-rname></h3>
+        <p data-rwhy></p>
+        <p class="quiz__next" data-rnext></p>
+        <div class="quiz__nav">
+          <a class="btn" href="#contacto" data-rgo>
+            Continuar al contacto
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"
+              ><path d="M4 10h12M11 5l5 5-5 5"></path></svg
+            >
+          </a>
+          <button type="button" class="btn btn--ghost" data-qreset>Responder de nuevo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="application/json" id="quiz-data" set:html={JSON.stringify(quiz)} />
+</section>
+
+<style>
+  .quiz { background: #efebe3; border-top: 1px solid var(--line); }
+  .quiz__grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(2rem, 6vw, 6rem); align-items: start; }
+  .quiz__head { margin-bottom: 0; }
+  .quiz__box {
+    position: relative;
+    background: var(--ivory);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .quiz__progress { height: 2px; background: var(--line); margin-bottom: 1.5rem; }
+  .quiz__progress span { display: block; height: 100%; width: 0; background: var(--copper); transition: width 0.5s var(--ease); }
+  .quiz__step { margin-bottom: 0.9rem; }
+  .quiz__fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .quiz__legend {
+    padding: 0;
+    margin-bottom: 1.4rem;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+    line-height: 1.2;
+  }
+  .quiz__legend:focus { outline: none; }
+  .quiz__options { display: grid; gap: 0.6rem; }
+  .quiz__opt { position: relative; }
+  .quiz__opt input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .quiz__opt span {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #fbfaf7;
+    font-size: 0.9688rem;
+    line-height: 1.4;
+    transition: border-color 0.25s, background-color 0.25s, color 0.25s;
+  }
+  .quiz__opt span::before {
+    content: '';
+    flex: none;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--slate);
+    border-radius: 50%;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+  .quiz__opt:hover span { border-color: var(--copper); }
+  .quiz__opt input:checked + span { border-color: var(--copper-deep); background: #fff; }
+  .quiz__opt input:checked + span::before { border-color: var(--copper-deep); background: var(--copper-deep); box-shadow: inset 0 0 0 2.5px #fff; }
+  .quiz__opt input:focus-visible + span { outline: 2px solid var(--copper); outline-offset: 2px; }
+  .quiz__nav { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.6rem; }
+  .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .btn[disabled]:hover { --btn-bg: var(--copper-deep); --btn-bd: var(--copper-deep); color: #fff; }
+  .quiz__result:focus { outline: none; }
+  .quiz__result h3 { font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem); margin: 0.8rem 0 1rem; }
+  .quiz__next { padding-left: 1rem; border-left: 2px solid var(--copper); color: var(--ink-2); }
+  [hidden] { display: none !important; }
+
+  @media (max-width: 900px) {
+    .quiz__grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  interface Opt { label: string; give?: Record<string, number>; next?: string }
+  interface Q { id: string; title: string; options: Opt[] }
+  interface Data { areas: Record<string, { name: string; why: string }>; questions: Q[] }
+
+  const root = document.querySelector<HTMLElement>('[data-quiz]');
+  const raw = document.getElementById('quiz-data')?.textContent;
+  if (root && raw) {
+    const data: Data = JSON.parse(raw);
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const form = $<HTMLFormElement>('[data-qform]');
+    const legend = $('[data-qlegend]');
+    const optsEl = $('[data-qoptions]');
+    const step = $('[data-qstep]');
+    const bar = $('[data-qbar]');
+    const back = $<HTMLButtonElement>('[data-qback]');
+    const next = $<HTMLButtonElement>('[data-qnext]');
+    const result = $('[data-qresult]');
+
+    let i = 0;
+    let answers: number[] = [];
+    const total = data.questions.length;
+
+    const render = (focus = false) => {
+      const q = data.questions[i];
+      step.textContent = `Pregunta ${i + 1} de ${total}`;
+      bar.style.width = `${(i / total) * 100}%`;
+      legend.textContent = q.title;
+      optsEl.innerHTML = '';
+      q.options.forEach((o, k) => {
+        const id = `q${i}-o${k}`;
+        const lab = document.createElement('label');
+        lab.className = 'quiz__opt';
+        lab.innerHTML = `<input type="radio" name="q${i}" id="${id}" value="${k}"><span></span>`;
+        lab.querySelector('span')!.textContent = o.label;
+        const input = lab.querySelector('input')!;
+        input.checked = answers[i] === k;
+        input.addEventListener('change', () => {
+          answers[i] = k;
+          next.disabled = false;
+        });
+        optsEl.appendChild(lab);
+      });
+      next.disabled = answers[i] === undefined;
+      next.textContent = i === total - 1 ? 'Ver recomendación' : 'Continuar';
+      back.hidden = i === 0;
+      if (focus) legend.focus();
+    };
+
+    const finish = () => {
+      const score: Record<string, number> = {};
+      answers.slice(0, 2).forEach((a, qi) => {
+        const give = data.questions[qi].options[a].give || {};
+        for (const [k, v] of Object.entries(give)) score[k] = (score[k] || 0) + v;
+      });
+      const best = Object.entries(score).sort((a, b) => b[1] - a[1])[0][0];
+      const area = data.areas[best];
+      const urgency = data.questions[2].options[answers[2]];
+      form.hidden = true;
+      step.hidden = true;
+      bar.style.width = '100%';
+      $('[data-rname]').textContent = area.name;
+      $('[data-rwhy]').textContent = area.why;
+      $('[data-rnext]').textContent = urgency.next || '';
+      result.hidden = false;
+      result.focus();
+      lastDetail = {
+        area: area.name,
+        urgent: answers[2] === 0,
+        subject: `Consulta: ${area.name}${answers[2] === 0 ? ' (urgente)' : ''}`,
+      };
+    };
+    let lastDetail: { area: string; urgent: boolean; subject: string } | null = null;
+    $('[data-rgo]').addEventListener('click', () => {
+      if (lastDetail) document.dispatchEvent(new CustomEvent('quiz:result', { detail: lastDetail }));
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (answers[i] === undefined) return;
+      if (i < total - 1) {
+        i++;
+        render(true);
+      } else finish();
+    });
+    back.addEventListener('click', () => {
+      if (i > 0) {
+        i--;
+        render(true);
+      }
+    });
+    $('[data-qreset]').addEventListener('click', () => {
+      i = 0;
+      answers = [];
+      result.hidden = true;
+      form.hidden = false;
+      step.hidden = false;
+      render(true);
+    });
+
+    render();
+  }
+</script>

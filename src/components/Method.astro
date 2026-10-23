@@ -1,0 +1,144 @@
+---
+import { phases } from '../data/content';
+---
+
+<section id="metodo" class="method section is-dark on-dark" aria-labelledby="metodo-titulo">
+  <div class="container">
+    <header class="section-head">
+      <p class="label label--copper reveal">Método</p>
+      <h2 id="metodo-titulo" class="reveal" style="--d:.06s">Cuatro fases, de la pregunta a la decisión.</h2>
+    </header>
+
+    <ol class="steps" data-steps>
+      <li class="steps__rail" aria-hidden="true"><span class="steps__fill" data-fill></span></li>
+      {
+        phases.map((p, i) => (
+          <li class="step" data-step>
+            <span class="step__node" aria-hidden="true"></span>
+            <p class="label step__num">Fase {String(i + 1).padStart(2, '0')}</p>
+            <h3>{p.name}</h3>
+            <p>{p.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="method__close reveal">Supuestos declarados, límites reconocidos, entregables auditables.</p>
+  </div>
+</section>
+
+<style>
+  .method { background: var(--ink); color: var(--ivory); }
+  .method h2 { color: var(--ivory); }
+
+  .steps {
+    --p: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+  }
+  .steps__rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 11px;
+    height: 1px;
+    background: rgba(217, 210, 199, 0.22);
+  }
+  .steps__fill {
+    position: absolute;
+    inset: 0;
+    background: var(--copper-light);
+    height: 2px;
+    top: -0.5px;
+    transform-origin: 0 50%;
+    transform: scaleX(var(--p));
+  }
+  .step { position: relative; padding-top: 3rem; }
+  .step__node {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 1.5px solid rgba(217, 210, 199, 0.4);
+    transition: background-color 0.5s var(--ease), border-color 0.5s, box-shadow 0.6s var(--ease), transform 0.5s var(--ease);
+  }
+  .step.is-lit .step__num { color: var(--copper-light); }
+  .step.is-lit .step__node {
+    background: var(--copper-light);
+    border-color: var(--copper-light);
+    transform: scale(1.12);
+    box-shadow: 0 0 0 7px rgba(201, 127, 78, 0.18), 0 0 28px 2px rgba(201, 127, 78, 0.45);
+  }
+  .step__num { display: block; margin-bottom: 0.7rem; }
+  .step h3 { color: var(--ivory); font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); margin-bottom: 0.7rem; }
+  .step p:not(.label) { color: var(--ivory-dim); margin: 0; max-width: 20em; }
+
+  .method__close {
+    max-width: 30em;
+    margin: clamp(3.5rem, 7vw, 6rem) 0 0;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(217, 210, 199, 0.2);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1.4rem, 1rem + 1.6vw, 2.2rem);
+    line-height: 1.3;
+    color: var(--ivory);
+  }
+
+  /* Sin JS o con movimiento reducido: todo encendido */
+  :global(html:not(.js)) .step__node { background: var(--copper-light); border-color: var(--copper-light); }
+  :global(html:not(.js)) .steps { --p: 1; }
+
+  @media (max-width: 800px) {
+    .steps { grid-template-columns: 1fr; gap: 2.25rem; padding-left: 2.6rem; }
+    .steps__rail { left: 11px; right: auto; top: 10px; bottom: 10px; width: 1px; height: auto; }
+    .steps__fill { width: 2px; height: auto; left: -0.5px; top: 0; bottom: 0; transform-origin: 50% 0; transform: scaleY(var(--p)); }
+    .step { padding-top: 0; }
+    .step__node { left: -2.6rem; top: 0.1rem; }
+  }
+</style>
+
+<script>
+  import { clamp, reducedMotion, rafThrottle } from '../scripts/env';
+
+  const steps = document.querySelector<HTMLElement>('[data-steps]');
+  const items = [...document.querySelectorAll<HTMLElement>('[data-step]')];
+  const mobile = window.matchMedia('(max-width: 800px)');
+
+  if (steps && items.length) {
+    const all = () => {
+      items.forEach((i) => i.classList.add('is-lit'));
+      steps.style.setProperty('--p', '1');
+    };
+    if (reducedMotion()) all();
+    else {
+      const update = rafThrottle(() => {
+        const vh = window.innerHeight;
+        const r = steps.getBoundingClientRect();
+        let p: number;
+        if (mobile.matches) {
+          const trigger = vh * 0.6;
+          const first = items[0].querySelector('.step__node')!.getBoundingClientRect();
+          const lastR = items[items.length - 1].querySelector('.step__node')!.getBoundingClientRect();
+          p = clamp((trigger - first.top) / Math.max(1, lastR.top - first.top));
+          items.forEach((el) => {
+            const nr = el.querySelector('.step__node')!.getBoundingClientRect();
+            el.classList.toggle('is-lit', nr.top < trigger);
+          });
+        } else {
+          p = clamp((vh * 0.78 - r.top) / (vh * 0.42));
+          items.forEach((el, i) => el.classList.toggle('is-lit', p >= (i / (items.length - 1)) * 0.92 + 0.02));
+        }
+        steps.style.setProperty('--p', p.toFixed(3));
+      });
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    }
+  }
+</script>

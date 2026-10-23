@@ -1,0 +1,160 @@
+---
+import Logo from './Logo.astro';
+import { navLinks } from '../data/site';
+
+interface Props {
+  /** Fondo marfil desde el inicio (páginas sin hero). */
+  solid?: boolean;
+}
+const { solid = false } = Astro.props;
+const home = Astro.url.pathname === '/' ? '' : '/';
+---
+
+<header class:list={['nav', { 'is-solid': solid }]} data-nav data-solid={solid ? 'true' : 'false'}>
+  <div class="nav__inner container">
+    <a class="nav__brand" href={home || '#inicio'} aria-label="Benítez Consulting Group — inicio">
+      <Logo variant="inverted" size={44} decorative class="nav__logo nav__logo--inv" />
+      <Logo variant="positive" size={44} decorative class="nav__logo nav__logo--pos" />
+    </a>
+
+    <button
+      class="nav__toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="menu-principal"
+      aria-label="Abrir menú"
+      data-nav-toggle
+    >
+      <span class="nav__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    </button>
+
+    <nav class="nav__menu" id="menu-principal" aria-label="Principal" data-nav-menu>
+      <ul class="nav__list">
+        {
+          navLinks.map((l) => (
+            <li>
+              <a class="nav__link u-draw" href={`${home}${l.href}`} data-nav-link={l.href.slice(1)}>
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="btn nav__cta" href={`${home}#contacto`}>Agendar diagnóstico</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    height: var(--nav-h);
+    color: var(--ivory);
+    border-bottom: 1px solid transparent;
+    transition: background-color 0.35s var(--ease), border-color 0.35s var(--ease), color 0.35s var(--ease),
+      backdrop-filter 0.35s;
+  }
+  .nav__inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .nav__brand { display: block; line-height: 0; position: relative; }
+  .nav__brand :global(.nav__logo--pos) { display: none; }
+
+  .nav.is-solid,
+  .nav.is-open {
+    border-bottom-color: var(--line);
+  }
+  .nav.is-solid {
+    background: rgba(246, 243, 238, 0.94);
+    backdrop-filter: saturate(1.4) blur(10px);
+    -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    color: var(--ink);
+  }
+  .nav.is-solid :global(.nav__logo--inv) { display: none; }
+  .nav.is-solid :global(.nav__logo--pos) { display: inline-flex; }
+  /* menú móvil abierto: siempre sobre tinta */
+  .nav.is-open { background: var(--ink); color: var(--ivory); border-bottom-color: rgba(217, 210, 199, 0.18); }
+  .nav.is-open :global(.nav__logo--inv) { display: inline-flex; }
+  .nav.is-open :global(.nav__logo--pos) { display: none; }
+
+  .nav__menu { display: flex; align-items: center; gap: clamp(1.25rem, 2.6vw, 2.5rem); }
+  .nav__list { display: flex; gap: clamp(1.1rem, 2.4vw, 2.2rem); }
+  .nav__link {
+    color: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding-block: 0.4rem;
+    background-image: linear-gradient(var(--copper-light), var(--copper-light));
+  }
+  .nav.is-solid .nav__link { background-image: linear-gradient(var(--copper), var(--copper)); }
+  .nav__link[aria-current='location'] { background-size: 100% 1px; }
+  .nav__cta { min-height: 2.6rem; padding: 0.55rem 1.2rem; font-size: 0.875rem; white-space: nowrap; }
+  .nav:not(.is-solid) .nav__cta { --btn-bg: var(--copper-deep); }
+
+  .nav__toggle {
+    display: none;
+    width: 46px;
+    height: 46px;
+    margin-right: -10px;
+    padding: 0;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .nav__bars { position: relative; display: block; width: 24px; height: 16px; margin: auto; }
+  .nav__bars i {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transition: transform 0.3s var(--ease), opacity 0.2s, top 0.3s var(--ease);
+  }
+  .nav__bars i:nth-child(1) { top: 0; }
+  .nav__bars i:nth-child(2) { top: 7px; }
+  .nav__bars i:nth-child(3) { top: 14px; }
+  .nav.is-open .nav__bars i:nth-child(1) { top: 7px; transform: rotate(45deg); }
+  .nav.is-open .nav__bars i:nth-child(2) { opacity: 0; }
+  .nav.is-open .nav__bars i:nth-child(3) { top: 7px; transform: rotate(-45deg); }
+
+  @media (max-width: 900px) {
+    :root { --nav-h: 66px; }
+    .nav__toggle { display: block; }
+    .nav__menu {
+      position: fixed;
+      inset: var(--nav-h) 0 0 0;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 2rem;
+      padding: 2.5rem var(--gutter);
+      background: var(--ink);
+      color: var(--ivory);
+      overflow-y: auto;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), visibility 0s linear 0.3s;
+    }
+    .nav.is-open .nav__menu { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
+    .nav__list { flex-direction: column; gap: 0; }
+    .nav__list li { border-bottom: 1px solid rgba(217, 210, 199, 0.14); }
+    .nav__link {
+      display: block;
+      padding-block: 1.1rem;
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 600;
+      background-image: none;
+    }
+    .nav__cta { align-self: flex-start; min-height: 3rem; font-size: 0.9375rem; padding-inline: 1.6rem; }
+  }
+</style>

@@ -1,0 +1,211 @@
+---
+import { areas } from '../data/areas';
+import { HEX_POINTS } from '../data/brand';
+
+const pct = (v: number) => `${((v / 120) * 100).toFixed(3)}%`;
+---
+
+<section id="areas" class="practice section" aria-labelledby="areas-titulo">
+  <div class="container">
+    <header class="section-head">
+      <p class="label label--copper reveal">Áreas de práctica</p>
+      <h2 id="areas-titulo" class="reveal" style="--d:.06s">Tres áreas, un centro y una misma estructura.</h2>
+      <p class="reveal" style="--d:.12s">
+        Pase el cursor o toque un nodo para ver los servicios de cada área.
+      </p>
+    </header>
+
+    <div class="practice__grid">
+      <div class="diagram is-arrived" data-diagram>
+        <svg class="diagram__svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+          <g class="diagram__spokes">
+            {areas.slice(0, 3).map((a) => <line x1="60" y1="60" x2={a.at[0]} y2={a.at[1]}></line>)}
+          </g>
+          <polygon class="diagram__hex" points={HEX_POINTS} fill="none" stroke-linejoin="round"></polygon>
+        </svg>
+        {
+          areas.map((a, i) => (
+            <button
+              type="button"
+              class:list={['node', { 'node--center': i === 3, 'is-active': i === 0 }]}
+              style={`left:${pct(a.at[0])};top:${pct(a.at[1])}`}
+              data-node={i}
+              aria-label={`${String(i + 1).padStart(2, '0')}. ${a.name}`}
+              aria-controls={`panel-${a.id}`}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              <span class="node__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="panels" aria-live="polite">
+        {
+          areas.map((a, i) => (
+            <article class:list={['panel', { 'is-active': i === 0 }]} id={`panel-${a.id}`} data-panel={i}>
+              <p class="label label--copper">
+                {i === 3 ? 'Centro de la estructura' : `Área ${String(i + 1).padStart(2, '0')}`}
+              </p>
+              <h3>{a.name}</h3>
+              <p class="panel__blurb">{a.blurb}</p>
+              <ul class="panel__list">
+                {a.services.map((s, k) => (
+                  <li style={`--k:${k}`}>{s}</li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .practice { background: var(--ivory); padding-top: clamp(2rem, 4vw, 4rem); }
+  .practice__grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 460px) 1fr;
+    gap: clamp(2.5rem, 7vw, 7rem);
+    align-items: center;
+  }
+
+  /* ---- Diagrama: la misma geometría que el isotipo ---- */
+  .diagram {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    aspect-ratio: 1;
+    margin-inline: auto;
+  }
+  .diagram__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .diagram__hex { stroke: var(--ink); stroke-width: 0.9; transition: opacity 0.4s var(--ease); }
+  .diagram__spokes line { stroke: var(--copper); stroke-width: 0.5; stroke-dasharray: 1.5 2.2; opacity: 0.7; }
+
+  .node {
+    --n: 19%;
+    position: absolute;
+    width: var(--n);
+    aspect-ratio: 1;
+    padding: 0;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    color: var(--copper-deep);
+    background: var(--ivory);
+    border: 1.5px solid var(--copper);
+    border-radius: 50%;
+    cursor: pointer;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: clamp(0.9rem, 0.6rem + 1.1vw, 1.3rem);
+    transition: transform 0.45s var(--ease), background-color 0.3s, color 0.3s, box-shadow 0.4s, opacity 0.4s;
+  }
+  .node--center { --n: 21%; border-style: double; border-width: 4px; }
+  .node::after {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border: 1px solid var(--copper);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.35s, transform 0.45s var(--ease);
+  }
+  .node:hover,
+  .node:focus-visible,
+  .node.is-active {
+    transform: scale(1.28);
+    background: var(--ink);
+    color: var(--ivory);
+    border-color: var(--ink);
+    box-shadow: 0 10px 30px -10px rgba(23, 37, 47, 0.55);
+  }
+  .node:hover::after,
+  .node:focus-visible::after,
+  .node.is-active::after { opacity: 0.7; transform: scale(1); }
+  .node--center:hover, .node--center:focus-visible, .node--center.is-active { border-style: solid; border-width: 1.5px; }
+
+  /* Mientras el logo viaja (JS activo), los nodos "brotan" al llegar */
+  :global(.fx-on) .diagram:not(.is-arrived) .node { opacity: 0; transform: scale(0.35); pointer-events: none; }
+  :global(.fx-on) .diagram:not(.is-arrived) .diagram__hex { opacity: 0; }
+  :global(.fx-on) .diagram:not(.is-arrived) .diagram__spokes { opacity: 0; }
+  .diagram__spokes { transition: opacity 0.5s 0.15s; }
+
+  /* ---- Panel de servicios ---- */
+  .panels { min-height: 20rem; }
+  .panel h3 { font-size: clamp(1.8rem, 1.3rem + 1.8vw, 2.75rem); margin: 0.9rem 0 0.6rem; }
+  .panel__blurb { font-size: var(--fs-lead); color: var(--ink-2); max-width: 30em; margin-bottom: 1.6rem; }
+  .panel__list { border-top: 1px solid var(--line); max-width: 34rem; }
+  .panel__list li {
+    position: relative;
+    padding: 0.85rem 0 0.85rem 1.7rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .panel__list li::before {
+    content: '';
+    position: absolute;
+    left: 0.2rem;
+    top: 1.4rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--copper);
+  }
+  :global(.js) .panel { display: none; }
+  :global(.js) .panel.is-active { display: block; }
+  :global(.js) .panel.is-active .panel__list li {
+    animation: svc-in 0.55s var(--ease) both;
+    animation-delay: calc(var(--k) * 70ms + 60ms);
+  }
+  :global(.js) .panel.is-active > :not(.panel__list) { animation: svc-in 0.5s var(--ease) both; }
+  @keyframes svc-in { from { opacity: 0; transform: translateY(8px); } }
+  :global(.js) .panel + .panel { margin-top: 0; }
+  .panel + .panel { margin-top: 3rem; }
+
+  /* ---- Línea transversal ---- */
+  .digital {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.4fr) 1.6fr;
+    gap: 1.5rem 3rem;
+    align-items: baseline;
+    margin-top: clamp(3rem, 6vw, 5.5rem);
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .digital h3 { font-size: 1.5rem; }
+  .digital p:not(.label) { margin: 0.4rem 0 0; color: var(--ink-2); }
+
+  @media (max-width: 860px) {
+    .practice__grid { grid-template-columns: 1fr; }
+    .panels { min-height: 0; }
+    .digital { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 420px) {
+    .diagram { max-width: 340px; }
+  }
+</style>
+
+<script>
+  const diagram = document.querySelector<HTMLElement>('[data-diagram]');
+  const nodes = [...document.querySelectorAll<HTMLButtonElement>('[data-node]')];
+  const panels = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
+
+  const setActive = (i: number) => {
+    nodes.forEach((n, k) => {
+      n.classList.toggle('is-active', k === i);
+      n.setAttribute('aria-pressed', String(k === i));
+    });
+    panels.forEach((p, k) => p.classList.toggle('is-active', k === i));
+  };
+  nodes.forEach((n) => {
+    const i = Number(n.dataset.node);
+    n.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && setActive(i));
+    n.addEventListener('focus', () => setActive(i));
+    n.addEventListener('click', () => setActive(i));
+  });
+  if (!diagram) setActive(0);
+</script>

@@ -1,0 +1,107 @@
+---
+/**
+ * Logo de Benítez Consulting Group (SVG inline).
+ *
+ * variant: "positive" (fondo marfil) | "inverted" (fondo tinta) | "accent" (fondo cobre)
+ * layout:  "mark" (solo isotipo) | "horizontal" | "stacked"
+ * size:    altura del isotipo en px (el wordmark se escala con él)
+ */
+import { B_PATH, HEX_POINTS, NODES } from '../data/brand';
+
+interface Props {
+  variant?: 'positive' | 'inverted' | 'accent';
+  layout?: 'mark' | 'horizontal' | 'stacked';
+  size?: number;
+  decorative?: boolean;
+  class?: string;
+}
+
+const { variant = 'positive', layout = 'horizontal', size = 48, decorative = false, class: className = '' } = Astro.props;
+const a11y: Record<string, string> = decorative
+  ? { 'aria-hidden': 'true' }
+  : { role: 'img', 'aria-label': 'Benítez Consulting Group' };
+---
+
+<span class:list={['logo', `logo--${variant}`, `logo--${layout}`, className]} style={`--s:${size}px`} {...a11y}>
+  <svg class="logo__mark" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+    <polygon class="lg-hex" points={HEX_POINTS} fill="none" stroke-width="7" stroke-linejoin="round"></polygon>
+    {NODES.map(([cx, cy]) => <circle class="lg-node" cx={cx} cy={cy} r="7"></circle>)}
+    <path class="lg-b" d={B_PATH}></path>
+  </svg>
+  {
+    layout !== 'mark' && (
+      <span class="logo__word" aria-hidden="true">
+        <span class="logo__name">BENÍTEZ</span>
+        <span class="logo__sub">CONSULTING GROUP</span>
+      </span>
+    )
+  }
+</span>
+
+<style is:global>
+  .logo {
+    --lg-ink: var(--ink);
+    --lg-node: var(--copper);
+    --lg-rule: var(--line);
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--s) * 0.3);
+    line-height: 1;
+    color: var(--lg-ink);
+  }
+  .logo--inverted {
+    --lg-ink: var(--ivory);
+    --lg-node: var(--copper-light);
+    --lg-rule: rgba(217, 210, 199, 0.35);
+  }
+  .logo--accent {
+    --lg-ink: #fff;
+    --lg-node: var(--ink);
+    --lg-rule: rgba(255, 255, 255, 0.4);
+  }
+  .logo--stacked {
+    flex-direction: column;
+    text-align: center;
+    gap: calc(var(--s) * 0.22);
+  }
+
+  .logo__mark {
+    flex: none;
+    width: var(--s);
+    height: var(--s);
+    overflow: visible;
+  }
+  .logo .lg-hex { stroke: var(--lg-ink); }
+  .logo .lg-node { fill: var(--lg-node); }
+  .logo .lg-b { fill: var(--lg-ink); }
+
+  .logo__word {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--s) * 0.1);
+    padding-left: calc(var(--s) * 0.3);
+    border-left: 1px solid var(--lg-rule);
+  }
+  .logo--stacked .logo__word {
+    align-items: center;
+    padding-left: 0;
+    border-left: 0;
+  }
+  .logo__name {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: calc(var(--s) * 0.5);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .logo__sub {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: calc(var(--s) * 0.5 / 3);
+    letter-spacing: 0.38em;
+    line-height: 1;
+    white-space: nowrap;
+    /* compensa el espacio final del letter-spacing */
+    margin-right: -0.38em;
+  }
+</style>

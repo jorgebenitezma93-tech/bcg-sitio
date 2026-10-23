@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Assemble from '../components/Assemble.astro';
+import Problem from '../components/Problem.astro';
+import Practice from '../components/Practice.astro';
+import Method from '../components/Method.astro';
+import Clients from '../components/Clients.astro';
+import About from '../components/About.astro';
+import Quiz from '../components/Quiz.astro';
+import Contact from '../components/Contact.astro';
+import { site, isSet } from '../data/site';
+import { areas } from '../data/areas';
+import { profiles } from '../data/publications';
+
+const url = Astro.site?.href ?? 'https://www.example.com/';
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': ['ProfessionalService', 'Organization'],
+  '@id': `${url}#organizacion`,
+  name: site.name,
+  legalName: site.legalName,
+  url,
+  logo: new URL('/apple-touch-icon.png', url).href,
+  image: new URL('/og-image.png', url).href,
+  description: site.description,
+  slogan: site.tagline,
+  inLanguage: 'es-MX',
+  areaServed: { '@type': 'Country', name: 'México' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Ciudad de México', addressCountry: 'MX' },
+  founder: {
+    '@type': 'Person',
+    name: site.founder.name,
+    jobTitle: 'Doctor en Ciencia de Materiales',
+    sameAs: [profiles.orcid, ...(profiles.scholar ? [profiles.scholar] : [])],
+  },
+  ...(isSet(site.contact.email) ? { email: site.contact.email } : {}),
+  ...(isSet(site.contact.whatsapp) ? { telephone: `+${site.contact.whatsapp}` } : {}),
+  ...(isSet(site.contact.linkedin) ? { sameAs: [site.contact.linkedin] } : {}),
+  openingHours: 'Mo-Fr 09:00-18:00',
+  makesOffer: areas.map((a) => a.name).map((n) => ({
+    '@type': 'Offer',
+    itemOffered: { '@type': 'Service', name: n },
+  })),
+};
+---
+
+<Base title="Benítez Consulting Group — Consultoría científica y tecnológica" jsonLd={jsonLd}>
+  <Hero />
+  <Assemble />
+  <Problem />
+  <Practice />
+  <Method />
+  <Clients />
+  <About />
+  <Quiz />
+  <Contact />
+</Base>

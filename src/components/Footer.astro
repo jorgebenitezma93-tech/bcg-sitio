@@ -1,0 +1,106 @@
+---
+import Logo from './Logo.astro';
+import { site, navLinks, isSet } from '../data/site';
+
+const home = Astro.url.pathname === '/' ? '' : '/';
+const { contact } = site;
+---
+
+<footer class="footer is-dark on-dark">
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <Logo variant="inverted" size={52} />
+      <p class="footer__tagline">{site.tagline}</p>
+    </div>
+
+    <nav class="footer__col" aria-label="Pie de página">
+      <p class="label">Navegación</p>
+      <ul>
+        {
+          navLinks.map((l) => (
+            <li>
+              <a class="u-draw" href={`${home}${l.href}`}>{l.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="footer__col">
+      <p class="label">Contacto</p>
+      <ul>
+        {
+          isSet(contact.email) && (
+            <li>
+              <a class="u-draw" href={`mailto:${contact.email}`}>{contact.email}</a>
+            </li>
+          )
+        }
+        {
+          isSet(contact.whatsapp) && (
+            <li>
+              <a class="u-draw" href={`https://wa.me/${contact.whatsapp.replace(/\D/g, '')}`} rel="noopener noreferrer" target="_blank">
+                WhatsApp {contact.whatsappDisplay}
+              </a>
+            </li>
+          )
+        }
+        {
+          isSet(contact.linkedin) && (
+            <li>
+              <a class="u-draw" href={contact.linkedin} rel="noopener noreferrer" target="_blank">
+                LinkedIn
+              </a>
+            </li>
+          )
+        }
+        <li>{contact.city}</li>
+        <li>{contact.hours}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer__legal">
+    <p>{site.legalName} © {site.year}</p>
+    <a class="u-draw" href="/aviso-de-privacidad">Aviso de privacidad</a>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--ink);
+    color: var(--ivory-dim);
+    padding-top: clamp(3.5rem, 7vw, 5.5rem);
+    font-size: 0.9375rem;
+  }
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1.2fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .footer__tagline {
+    max-width: 24rem;
+    margin: 1.5rem 0 0;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: var(--ivory);
+  }
+  .footer__col .label { margin-bottom: 1rem; }
+  .footer__col li { margin-bottom: 0.45rem; }
+  .footer a { color: var(--ivory); background-image: linear-gradient(var(--copper-light), var(--copper-light)); }
+  .footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    padding-block: 1.5rem 2rem;
+    border-top: 1px solid rgba(217, 210, 199, 0.18);
+    font-size: 0.875rem;
+  }
+  .footer__legal p { margin: 0; }
+  @media (max-width: 760px) {
+    .footer__grid { grid-template-columns: 1fr; }
+  }
+</style>

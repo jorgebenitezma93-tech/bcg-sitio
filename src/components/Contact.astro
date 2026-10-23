@@ -1,0 +1,348 @@
+---
+import { site, isSet } from '../data/site';
+import { areas } from '../data/areas';
+
+const { contact } = site;
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
+const interests = [...areas.map((a) => a.name), 'Aún no lo sé'];
+const wa = isSet(contact.whatsapp) ? `https://wa.me/${contact.whatsapp.replace(/\D/g, '')}` : '';
+---
+
+<section id="contacto" class="contact section is-dark on-dark" aria-labelledby="contacto-titulo">
+  <div class="container contact__grid">
+    <div class="contact__intro">
+      <p class="label label--copper reveal">Contacto</p>
+      <h2 id="contacto-titulo" class="reveal" style="--d:.06s">Describa su caso en unas líneas.</h2>
+      <p class="contact__sub reveal" style="--d:.12s">Le decimos con franqueza si podemos ayudarle y cómo.</p>
+
+      <ul class="contact__list reveal" style="--d:.18s">
+        {
+          isSet(contact.email) && (
+            <li>
+              <span class="label">Correo</span>
+              <a class="u-draw" href={`mailto:${contact.email}`}>{contact.email}</a>
+            </li>
+          )
+        }
+        {
+          wa && (
+            <li>
+              <span class="label">WhatsApp</span>
+              <a class="u-draw" href={wa} rel="noopener noreferrer" target="_blank">{contact.whatsappDisplay || 'Escribir por WhatsApp'}</a>
+            </li>
+          )
+        }
+        {
+          isSet(contact.linkedin) && (
+            <li>
+              <span class="label">LinkedIn</span>
+              <a class="u-draw" href={contact.linkedin} rel="noopener noreferrer" target="_blank">Perfil en LinkedIn</a>
+            </li>
+          )
+        }
+        <li>
+          <span class="label">Ubicación</span>
+          <span>{contact.city}</span>
+        </li>
+        <li>
+          <span class="label">Horario</span>
+          <span>{contact.hours}</span>
+        </li>
+      </ul>
+    </div>
+
+    <form
+      class="form reveal"
+      data-contact
+      data-endpoint={endpoint}
+      data-email={isSet(contact.email) ? contact.email : ''}
+      data-wa={wa ? contact.whatsapp.replace(/\D/g, '') : ''}
+      novalidate
+      method="post"
+      aria-label="Formulario de contacto"
+    >
+      <div class="field">
+        <label for="f-nombre">Nombre <span aria-hidden="true">*</span></label>
+        <input id="f-nombre" name="nombre" type="text" autocomplete="name" required aria-describedby="e-nombre" />
+        <p class="field__err" id="e-nombre" role="alert"></p>
+      </div>
+      <div class="field">
+        <label for="f-org">Organización <small>(opcional)</small></label>
+        <input id="f-org" name="organizacion" type="text" autocomplete="organization" />
+      </div>
+      <div class="field field--wide">
+        <label for="f-correo">Correo electrónico <span aria-hidden="true">*</span></label>
+        <input id="f-correo" name="correo" type="email" autocomplete="email" required aria-describedby="e-correo" />
+        <p class="field__err" id="e-correo" role="alert"></p>
+      </div>
+      <div class="field field--wide">
+        <label for="f-area">Área de interés <span aria-hidden="true">*</span></label>
+        <select id="f-area" name="area" required aria-describedby="e-area">
+          <option value="">Seleccione una opción</option>
+          {interests.map((n) => <option value={n}>{n}</option>)}
+        </select>
+        <p class="field__err" id="e-area" role="alert"></p>
+      </div>
+      <div class="field field--wide">
+        <label for="f-asunto">Asunto <small>(opcional)</small></label>
+        <input id="f-asunto" name="asunto" type="text" />
+      </div>
+      <div class="field field--wide">
+        <label for="f-mensaje">Mensaje <span aria-hidden="true">*</span></label>
+        <textarea id="f-mensaje" name="mensaje" rows="5" required aria-describedby="e-mensaje"></textarea>
+        <p class="field__err" id="e-mensaje" role="alert"></p>
+      </div>
+
+      <!-- Campo trampa para robots: debe quedar vacío -->
+      <div class="hp" aria-hidden="true">
+        <label>No llenar este campo <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <div class="field field--wide field--check">
+        <input id="f-aviso" name="aviso" type="checkbox" required aria-describedby="e-aviso" />
+        <label for="f-aviso">
+          He leído y acepto el <a href="/aviso-de-privacidad" target="_blank" rel="noopener">aviso de privacidad</a>.
+        </label>
+        <p class="field__err" id="e-aviso" role="alert"></p>
+      </div>
+
+      <div class="field--wide form__actions">
+        <button class="btn" type="submit" data-submit>
+          Enviar mensaje
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"
+            ><path d="M4 10h12M11 5l5 5-5 5"></path></svg
+          >
+        </button>
+        {
+          wa && (
+            <button class="btn btn--ghost form__wa" type="button" data-wa-btn>
+              Enviar por WhatsApp
+            </button>
+          )
+        }
+        <p class="form__status" data-status role="status" aria-live="polite" tabindex="-1"></p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .contact { background: var(--ink); }
+  .contact h2 { color: var(--ivory); }
+  .contact__grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(2.5rem, 6vw, 6rem); align-items: start; }
+  .contact__sub { font-size: var(--fs-lead); color: var(--ivory-dim); margin: 1.25rem 0 2.5rem; max-width: 26em; }
+  .contact__list li { display: grid; gap: 0.2rem; padding-block: 1rem; border-top: 1px solid rgba(217, 210, 199, 0.18); }
+  .contact__list li:last-child { border-bottom: 1px solid rgba(217, 210, 199, 0.18); }
+  .contact__list a, .contact__list span:not(.label) { color: var(--ivory); }
+  .contact__list a { width: fit-content; background-image: linear-gradient(var(--copper-light), var(--copper-light)); }
+
+  .form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem 1.25rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background: var(--ivory);
+    color: var(--ink);
+    border-radius: var(--radius);
+  }
+  .field--wide, .form__actions { grid-column: 1 / -1; }
+  .field label { display: block; margin-bottom: 0.4rem; font-size: 0.875rem; font-weight: 500; color: var(--ink); }
+  .field label small { font-weight: 400; color: var(--slate); }
+  .field label span[aria-hidden] { color: var(--copper-deep); }
+  .field input[type='text'], .field input[type='email'], .field select, .field textarea {
+    width: 100%;
+    padding: 0.8rem 0.9rem;
+    font: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid #b9b2a5;
+    border-radius: var(--radius);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field textarea { resize: vertical; min-height: 8rem; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: 2px solid var(--copper);
+    outline-offset: 1px;
+    border-color: var(--copper-deep);
+  }
+  .field [aria-invalid='true'] { border-color: #a3341f; }
+  .field__err { margin: 0.35rem 0 0; min-height: 0; font-size: 0.8438rem; color: #a3341f; }
+  .field__err:empty { display: none; }
+
+  .field--check { display: grid; grid-template-columns: auto 1fr; column-gap: 0.7rem; align-items: start; }
+  .field--check input { width: 1.15rem; height: 1.15rem; margin: 0.2rem 0 0; accent-color: var(--copper-deep); }
+  .field--check label { margin: 0; font-weight: 400; color: var(--ink-2); }
+  .field--check .field__err { grid-column: 1 / -1; }
+  .field--check label a { text-decoration: underline; text-underline-offset: 3px; }
+
+  /* El formulario es claro aunque la sección sea oscura */
+  .form .btn--ghost { --btn-fg: var(--ink); --btn-bd: var(--ink); --btn-bg: transparent; }
+  .form .btn--ghost:hover { --btn-bg: var(--ink); --btn-bd: var(--ink); color: var(--ivory); }
+
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+  .form__status { margin: 0; font-size: 0.9375rem; color: var(--ink-2); flex: 1 1 14rem; }
+  .form__status:focus { outline: none; }
+  .form__status.is-ok { color: #2d5a3d; }
+  .form__status.is-err { color: #a3341f; }
+  .form__status:empty { display: none; }
+  .btn[disabled] { opacity: 0.6; cursor: progress; }
+  .btn[disabled]:hover { --btn-bg: var(--copper-deep); --btn-bd: var(--copper-deep); color: #fff; }
+
+  @media (max-width: 900px) {
+    .contact__grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .form { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact]');
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const endpoint = form.dataset.endpoint || '';
+    const toEmail = form.dataset.email || '';
+    const f = (n: string) => form.elements.namedItem(n) as HTMLInputElement & HTMLSelectElement & HTMLTextAreaElement;
+
+    const rules: Record<string, (el: HTMLInputElement) => string> = {
+      nombre: (el) => (el.value.trim().length < 2 ? 'Escriba su nombre.' : ''),
+      correo: (el) => {
+        const v = el.value.trim();
+        if (!v) return 'Escriba su correo electrónico.';
+        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : 'Revise el formato del correo (ejemplo: nombre@empresa.com).';
+      },
+      area: (el) => (el.value ? '' : 'Seleccione un área de interés.'),
+      mensaje: (el) => {
+        const v = el.value.trim();
+        if (!v) return 'Describa su caso en unas líneas.';
+        return v.length < 20 ? 'Agregue un poco más de detalle (mínimo 20 caracteres).' : '';
+      },
+      aviso: (el) => (el.checked ? '' : 'Debe aceptar el aviso de privacidad para enviar el formulario.'),
+    };
+
+    const check = (name: string) => {
+      const el = f(name);
+      const msg = rules[name](el);
+      const out = document.getElementById(`e-${name}`);
+      if (out) out.textContent = msg;
+      msg ? el.setAttribute('aria-invalid', 'true') : el.removeAttribute('aria-invalid');
+      return !msg;
+    };
+    Object.keys(rules).forEach((n) => {
+      const el = f(n);
+      el.addEventListener('blur', () => el.dataset.touched && check(n));
+      el.addEventListener('input', () => {
+        el.dataset.touched = '1';
+        if (el.getAttribute('aria-invalid')) check(n);
+      });
+      el.addEventListener('change', () => check(n));
+    });
+
+    const say = (msg: string, kind: 'ok' | 'err' | '' = '') => {
+      status.className = `form__status ${kind ? 'is-' + kind : ''}`;
+      status.textContent = msg;
+    };
+
+    const mailto = () => {
+      const body = [
+        `Nombre: ${f('nombre').value.trim()}`,
+        `Organización: ${f('organizacion').value.trim() || '—'}`,
+        `Correo: ${f('correo').value.trim()}`,
+        `Área de interés: ${f('area').value}`,
+        '',
+        f('mensaje').value.trim(),
+      ].join('\n');
+      const subject = f('asunto').value.trim() || `Consulta: ${f('area').value}`;
+      return `mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+
+    const validate = () => {
+      say('');
+      const results = Object.keys(rules).map((n) => [n, check(n)] as const);
+      const bad = results.find(([, ok]) => !ok);
+      if (bad) {
+        f(bad[0]).focus();
+        say('Revise los campos marcados.', 'err');
+        return false;
+      }
+      return !f('_gotcha').value; // falso si lo llenó un robot
+    };
+
+    // Alternativa: abrir WhatsApp con el mensaje escrito (lo envía la persona desde su teléfono)
+    form.querySelector<HTMLButtonElement>('[data-wa-btn]')?.addEventListener('click', () => {
+      if (!validate()) return;
+      const text = [
+        `Hola, soy ${f('nombre').value.trim()}${f('organizacion').value.trim() ? ` (${f('organizacion').value.trim()})` : ''}.`,
+        `Área de interés: ${f('area').value}.`,
+        '',
+        f('mensaje').value.trim(),
+        '',
+        `Correo: ${f('correo').value.trim()}`,
+      ].join('\n');
+      window.open(`https://wa.me/${form.dataset.wa}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+      say('Se abrió WhatsApp con su mensaje. Envíelo desde ahí para completar el contacto.', 'ok');
+      status.focus();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validate()) return;
+
+      if (endpoint) {
+        submit.disabled = true;
+        say('Enviando…');
+        try {
+          const body = new FormData(form);
+          // Campos especiales de Formspree: asunto del correo y dirección de respuesta
+          body.set('_subject', f('asunto').value.trim() || `Consulta: ${f('area').value}`);
+          body.set('_replyto', f('correo').value.trim());
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            body,
+            headers: { Accept: 'application/json' },
+          });
+          if (!res.ok) throw new Error(String(res.status));
+          form.reset();
+          say('Gracias. Recibimos su mensaje y le responderemos en días hábiles.', 'ok');
+        } catch {
+          say(
+            toEmail
+              ? 'No pudimos enviar el formulario. Puede escribirnos directamente por correo.'
+              : 'No pudimos enviar el formulario. Intente de nuevo en unos minutos.',
+            'err'
+          );
+          if (toEmail) {
+            const a = document.createElement('a');
+            a.href = mailto();
+            a.textContent = ' Abrir correo con sus datos';
+            a.style.color = 'var(--copper-deep)';
+            status.appendChild(a);
+          }
+        } finally {
+          submit.disabled = false;
+          status.focus();
+        }
+      } else if (toEmail) {
+        window.location.href = mailto();
+        say('Se abrió su programa de correo con el mensaje listo para enviar.', 'ok');
+        status.focus();
+      } else {
+        say('El formulario aún no está configurado. Defina PUBLIC_FORM_ENDPOINT o el correo de contacto en src/data/site.ts.', 'err');
+        status.focus();
+      }
+    });
+
+    // Prellenado desde el cuestionario "¿Por dónde empiezo?"
+    document.addEventListener('quiz:result', (e) => {
+      const d = (e as CustomEvent<{ area: string; subject: string }>).detail;
+      const sel = f('area');
+      [...sel.options].forEach((o) => (o.selected = o.value === d.area));
+      check('area');
+      f('asunto').value = d.subject;
+      setTimeout(() => (f('nombre').value ? f('mensaje') : f('nombre')).focus({ preventScroll: true }), 700);
+    });
+  }
+</script>

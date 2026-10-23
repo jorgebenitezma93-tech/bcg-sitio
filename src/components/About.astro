@@ -1,0 +1,409 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import Logo from './Logo.astro';
+import { site } from '../data/site';
+import { areas } from '../data/areas';
+import { values, mission, vision } from '../data/content';
+import { B_PATH, HEX_POINTS, NODES } from '../data/brand';
+import { clients } from '../data/clients';
+import { profiles, education, publications, otherWorks } from '../data/publications';
+
+// Fotografía del fundador: public/img/fundador.jpg (+ AVIF/WebP generados en el build)
+const imgDir = path.join(process.cwd(), 'public', 'img');
+const has = (ext: string) => fs.existsSync(path.join(imgDir, `fundador.${ext}`));
+const photo = { avif: has('avif'), webp: has('webp'), jpg: has('jpg') || has('jpeg') };
+const hasPhoto = photo.avif || photo.webp || photo.jpg;
+
+const stats = [{ value: areas.length, label: 'líneas de práctica' }, ...site.stats];
+const nodeAreas = [areas[0], areas[1], areas[2]];
+// etiquetas junto a cada nodo (el texto sale de areas.labelLines)
+const spots: { x: number; y: number; anchor: 'start' | 'end' }[] = [
+  { x: 21, y: 9, anchor: 'end' },
+  { x: 126, y: 58, anchor: 'start' },
+  { x: 21, y: 98, anchor: 'end' },
+];
+const labels = spots.map((s, i) => ({ ...s, lines: nodeAreas[i].labelLines }));
+---
+
+<section id="nosotros" class="about section" aria-labelledby="nosotros-titulo">
+  <div class="container">
+    <header class="section-head">
+      <p class="label label--copper reveal">Nosotros</p>
+      <h2 id="nosotros-titulo" class="reveal" style="--d:.06s">Evidencia antes que intuición.</h2>
+    </header>
+
+    <p class="about__lead reveal">
+      Benítez Consulting Group nace de una premisa simple: las decisiones industriales y de inversión mejoran cuando se
+      sustentan en evidencia, no en intuición. Operamos bajo un modelo de áreas de práctica especializadas, dirigido por
+      formación doctoral y experiencia en investigación aplicada con publicaciones arbitradas.
+    </p>
+
+    <ul class="stats reveal" aria-label="Datos de la firma">
+      {
+        stats.map((s) => (
+          <li>
+            <span class="stats__n" data-count={s.value}>{s.value}</span>
+            <span class="stats__l">{s.label}</span>
+          </li>
+        ))
+      }
+      <li>
+        <span class="stats__n" data-count={clients.filter((c) => c.enabled !== false).length}>
+          {clients.filter((c) => c.enabled !== false).length}
+        </span>
+        <span class="stats__l">instituciones atendidas</span>
+      </li>
+    </ul>
+
+    <div class="about__grid">
+      <!-- Fundador -->
+      <article class="founder reveal" aria-labelledby="fundador-nombre">
+        <div class="founder__photo">
+          {
+            hasPhoto ? (
+              <picture>
+                {photo.avif && <source srcset="/img/fundador.avif" type="image/avif" />}
+                {photo.webp && <source srcset="/img/fundador.webp" type="image/webp" />}
+                <img
+                  src={photo.jpg ? '/img/fundador.jpg' : '/img/fundador.webp'}
+                  alt={`Retrato de ${site.founder.name}`}
+                  width="600"
+                  height="750"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+            ) : (
+              <div class="founder__ph">
+                <Logo variant="inverted" layout="mark" size={110} decorative />
+              </div>
+            )
+          }
+        </div>
+        <div class="founder__text">
+          <p class="label label--copper">{site.founder.role}</p>
+          <h3 id="fundador-nombre">{site.founder.name}</h3>
+          <p>{site.founder.bio}</p>
+        </div>
+      </article>
+
+      <!-- Explicación interactiva del logo -->
+      <div class="lexp reveal" data-lexp>
+        <p class="label">El logo, explicado</p>
+        <svg class="lexp__svg" viewBox="-40 0 232 120" role="group" aria-label="Isotipo interactivo: hexágono y tres nodos">
+          <g class="hot hot--hex" tabindex="0" role="button" aria-label="Celda HCP" data-tip="hex">
+            <polygon class="hit" points={HEX_POINTS} fill="none" stroke-width="16" stroke-linejoin="round"></polygon>
+            <polygon class="shape" points={HEX_POINTS} fill="none" stroke-width="7" stroke-linejoin="round"></polygon>
+          </g>
+          <path class="lexp__b" d={B_PATH}></path>
+          {
+            NODES.map(([cx, cy], i) => (
+              <g class="hot hot--node" tabindex="0" role="button" aria-label={`Nodo: ${nodeAreas[i].name}`} data-tip={`n${i}`}>
+                <circle class="hit" cx={cx} cy={cy} r="14"></circle>
+                <circle class="shape" cx={cx} cy={cy} r="7"></circle>
+              </g>
+            ))
+          }
+          <text class="lexp__tag" data-label="hex" x="60" y="119" text-anchor="middle">Celda HCP</text>
+          {
+            labels.map((l, i) => (
+              <text class="lexp__tag" data-label={`n${i}`} x={l.x} y={l.y} text-anchor={l.anchor}>
+                {l.lines.map((t, k) => (
+                  <tspan x={l.x} dy={k === 0 ? 0 : 7.4}>
+                    {t}
+                  </tspan>
+                ))}
+              </text>
+            ))
+          }
+        </svg>
+        <div class="lexp__cap" aria-live="polite">
+          <p class="lexp__title" data-cap-title>Pase el cursor o toque el hexágono y los nodos.</p>
+          <p class="lexp__text" data-cap-text>
+            El hexágono es la celda unitaria hexagonal compacta (HCP) de la ciencia de materiales. Los tres nodos son
+            los átomos de la red y, a la vez, las tres áreas de práctica sostenidas por una misma estructura.
+          </p>
+        </div>
+        <template data-tips>
+          <i data-k="hex" data-t="Celda HCP" data-d="La celda unitaria hexagonal compacta: el orden con que se acomodan los átomos en muchos materiales cristalinos. Es la credencial científica del fundador y la forma de nuestra marca."></i>
+          {nodeAreas.map((a, i) => <i data-k={`n${i}`} data-t={`Nodo · ${a.name}`} data-d={`Un átomo de la red y, a la vez, un área de práctica. ${a.blurb}`}></i>)}
+        </template>
+      </div>
+    </div>
+
+    <!-- Perfil académico -->
+    <section class="academic reveal" aria-labelledby="academico-t">
+      <div class="academic__side">
+        <p class="label label--copper">Perfil académico</p>
+        <h3 id="academico-t">Formación y publicaciones</h3>
+        <ul class="academic__edu">
+          {education.map((e) => <li>{e}</li>)}
+        </ul>
+        <ul class="academic__links">
+          <li>
+            <a class="u-draw" href={profiles.orcid} target="_blank" rel="noopener noreferrer">ORCID: 0000-0003-2316-6946<span class="sr-only"> (se abre en una pestaña nueva)</span></a>
+          </li>
+          {
+            profiles.scholar && (
+              <li>
+                <a class="u-draw" href={profiles.scholar} target="_blank" rel="noopener noreferrer">Google Scholar<span class="sr-only"> (se abre en una pestaña nueva)</span></a>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+      <div class="academic__main">
+      <ol class="academic__pubs">
+        {
+          publications.map((p) => (
+            <li>
+              <p class="pub__title">{p.title}</p>
+              <p class="pub__meta">
+                <em>{p.journal}</em>, {p.year} ·{' '}
+                <a class="u-draw" href={`https://doi.org/${p.doi}`} target="_blank" rel="noopener noreferrer">DOI<span class="sr-only"> de {p.title} (se abre en una pestaña nueva)</span></a>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+
+      <h4 class="academic__sub">Otros trabajos</h4>
+      <ul class="academic__other">
+        {
+          otherWorks.map((w) => (
+            <li>
+              <p class="pub__title">{w.title}</p>
+              <p class="pub__meta">
+                {w.kind} · {w.institution}, {w.year} ·{' '}
+                <a class="u-draw" href={w.url} target="_blank" rel="noopener noreferrer">Repositorio UNAM<span class="sr-only"> de {w.title} (se abre en una pestaña nueva)</span></a>
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+      </div>
+    </section>
+
+    <h3 class="values__title reveal">Cómo trabajamos</h3>
+    <ul class="values">
+      {
+        values.map((v, i) => (
+          <li class="value reveal" style={`--d:${i * 0.06}s`}>
+            <span class="label label--copper">{String(i + 1).padStart(2, '0')}</span>
+            <h4>{v.name}</h4>
+            <p>{v.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<section class="mv is-dark on-dark" aria-label="Misión y visión">
+  <div class="container mv__grid">
+    <figure class="mv__item reveal">
+      <figcaption class="label label--copper">Misión</figcaption>
+      <blockquote>{mission}</blockquote>
+    </figure>
+    <figure class="mv__item reveal" style="--d:.1s">
+      <figcaption class="label label--copper">Visión</figcaption>
+      <blockquote>{vision}</blockquote>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .about { background: var(--ivory); border-top: 1px solid var(--line); }
+  .about__lead {
+    max-width: 44rem;
+    margin: 0 0 clamp(2.5rem, 5vw, 4rem);
+    font-family: var(--font-serif);
+    font-size: clamp(1.3rem, 1rem + 1.1vw, 1.85rem);
+    line-height: 1.42;
+    color: var(--ink);
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    padding-block: 2rem;
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+    border-block: 1px solid var(--line);
+  }
+  .stats__n {
+    display: block;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: clamp(2.6rem, 2rem + 2.4vw, 4rem);
+    line-height: 1;
+    color: var(--copper-deep);
+    font-variant-numeric: tabular-nums;
+  }
+  .stats__l { display: block; margin-top: 0.5rem; color: var(--ink-2); font-size: 0.9375rem; }
+
+  .about__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+    margin-bottom: clamp(4rem, 8vw, 7rem);
+  }
+
+  /* Fundador */
+  .founder { display: grid; grid-template-columns: minmax(140px, 0.8fr) 1.2fr; gap: 1.75rem; align-items: start; }
+  .founder__photo { aspect-ratio: 4 / 5; background: var(--ink); border-radius: var(--radius); overflow: hidden; }
+  .founder__photo img { width: 100%; height: 100%; object-fit: cover; }
+  .founder__ph {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    text-align: center;
+    color: var(--ivory-dim);
+    font-size: 0.8125rem;
+  }
+  .founder__ph p { margin: 0; line-height: 1.5; }
+  .founder__ph code { font-size: 0.75rem; color: var(--copper-light); }
+  .founder h3 { margin: 0.6rem 0 1rem; font-size: clamp(1.4rem, 1.1rem + 0.9vw, 1.9rem); }
+  .founder__text p:not(.label) { color: var(--ink-2); margin: 0; }
+
+  /* Logo explicado */
+  .lexp { background: #fbfaf7; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem 1.5rem 1.75rem; }
+  .lexp__svg { width: 100%; height: auto; margin-block: 0.5rem 1rem; overflow: visible; }
+  .lexp .hot { cursor: pointer; outline: none; }
+  .lexp .hit { fill: transparent; stroke: transparent; }
+  .lexp .shape { transition: stroke-width 0.3s var(--ease), r 0.3s var(--ease), fill 0.3s; }
+  .lexp .hot--hex .shape { stroke: var(--ink); }
+  .lexp .hot--node .shape { fill: var(--copper); }
+  .lexp .hot--hex:hover .shape,
+  .lexp .hot--hex:focus-visible .shape,
+  .lexp .hot--hex.is-on .shape { stroke: var(--copper-deep); stroke-width: 9; }
+  .lexp .hot--node:hover .shape,
+  .lexp .hot--node:focus-visible .shape,
+  .lexp .hot--node.is-on .shape { r: 10; fill: var(--copper-deep); }
+  .lexp .hot:focus-visible { outline: none; }
+  .lexp .hot:focus-visible .shape { filter: drop-shadow(0 0 0.8px var(--copper)); }
+  .lexp__b { fill: var(--ink); }
+  .lexp__tag {
+    font-family: var(--font-sans);
+    font-size: 6.2px;
+    font-weight: 500;
+    fill: var(--ink);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
+    pointer-events: none;
+  }
+  .lexp__tag.is-on { opacity: 1; }
+  .lexp__cap { min-height: 8.5rem; border-top: 1px solid var(--line); padding-top: 1.1rem; }
+  .lexp__title { margin: 0 0 0.4rem; font-family: var(--font-serif); font-weight: 600; font-size: 1.2rem; }
+  .lexp__text { margin: 0; color: var(--ink-2); font-size: 0.9688rem; }
+
+  /* Perfil académico */
+  .academic {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    margin-bottom: clamp(4rem, 8vw, 7rem);
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .academic h3 { margin: 0.7rem 0 1.25rem; font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); }
+  .academic__edu li { margin-bottom: 0.7rem; color: var(--ink-2); font-size: 0.9688rem; line-height: 1.5; }
+  .academic__links { margin-top: 1.4rem; display: grid; gap: 0.5rem; }
+  .academic__links a { font-weight: 500; background-image: linear-gradient(var(--copper), var(--copper)); background-size: 100% 1px; }
+  .academic__pubs { list-style: decimal; padding-left: 1.8rem; border-top: 1px solid var(--line); }
+  .academic__pubs li { padding: 1rem 0 1rem 0.4rem; border-bottom: 1px solid var(--line); }
+  .academic__pubs li::marker { color: var(--copper-deep); font-family: var(--font-serif); font-weight: 600; }
+  .academic__sub { margin: 2.5rem 0 0.4rem; font-family: var(--font-serif); font-weight: 600; font-size: 1.4rem; }
+  .academic__other { border-top: 1px solid var(--line); }
+  .academic__other li { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+  .pub__title { margin: 0 0 0.3rem; font-family: var(--font-serif); font-size: 1.1rem; line-height: 1.35; }
+  .pub__meta { margin: 0; color: var(--slate); font-size: 0.875rem; }
+  .pub__meta a { color: var(--copper-deep); }
+
+  /* Valores */
+  .values__title { margin-bottom: 1.75rem; font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); }
+  .values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .value { background: var(--ivory); padding: 1.6rem 1.4rem 1.8rem; transition: background-color 0.3s; }
+  .value:hover { background: #fbfaf7; }
+  .value h4 { margin: 0.6rem 0 0.6rem; font-family: var(--font-serif); font-weight: 600; font-size: 1.3rem; line-height: 1.2; }
+  .value p { margin: 0; color: var(--ink-2); font-size: 0.9375rem; line-height: 1.55; }
+
+  /* Misión y visión */
+  .mv { background: var(--ink); padding-block: clamp(4.5rem, 9vw, 8rem); }
+  .mv__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2.5rem, 6vw, 6rem); }
+  .mv__item { margin: 0; position: relative; padding-top: 3.2rem; }
+  .mv__item::before {
+    content: '“';
+    position: absolute;
+    top: -0.5rem;
+    left: -0.05em;
+    font-family: var(--font-serif);
+    font-size: 6rem;
+    line-height: 1;
+    color: var(--copper-light);
+    opacity: 0.9;
+  }
+  .mv__item figcaption { display: block; }
+  .mv blockquote {
+    margin: 0.9rem 0 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1.3rem, 1rem + 1.1vw, 1.85rem);
+    line-height: 1.38;
+    color: var(--ivory);
+  }
+
+  @media (max-width: 900px) {
+    .about__grid { grid-template-columns: 1fr; }
+    .academic { grid-template-columns: 1fr; }
+    .mv__grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .founder { grid-template-columns: 1fr; }
+    .founder__photo { max-width: 260px; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-lexp]');
+  if (root) {
+    const tips = new Map<string, { t: string; d: string }>();
+    (root.querySelector('template[data-tips]') as HTMLTemplateElement | null)?.content
+      .querySelectorAll<HTMLElement>('i')
+      .forEach((i) => tips.set(i.dataset.k!, { t: i.dataset.t!, d: i.dataset.d! }));
+
+    const title = root.querySelector<HTMLElement>('[data-cap-title]')!;
+    const text = root.querySelector<HTMLElement>('[data-cap-text]')!;
+    const hots = [...root.querySelectorAll<SVGGElement>('.hot')];
+    const labels = [...root.querySelectorAll<SVGTextElement>('[data-label]')];
+
+    const show = (k: string) => {
+      const tip = tips.get(k);
+      if (!tip) return;
+      title.textContent = tip.t;
+      text.textContent = tip.d;
+      hots.forEach((h) => h.classList.toggle('is-on', h.dataset.tip === k));
+      // al señalar el hexágono se etiquetan también los tres nodos
+      labels.forEach((l) => l.classList.toggle('is-on', k === 'hex' || l.dataset.label === k));
+    };
+    hots.forEach((h) => {
+      const k = h.dataset.tip!;
+      h.addEventListener('pointerenter', () => show(k));
+      h.addEventListener('focus', () => show(k));
+      h.addEventListener('click', () => show(k));
+      h.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), show(k)));
+    });
+  }
+</script>
