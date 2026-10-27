@@ -1,0 +1,11 @@
+{
+  // Configuración de Cloudflare Workers (sitio estático).
+  // Cloudflare ejecuta "npm run build" y luego "npx wrangler deploy",
+  // que publica la carpeta dist/ generada por Astro.
+  "name": "bcg-sitio",
+  "compatibility_date": "2025-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}
