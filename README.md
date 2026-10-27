@@ -6,7 +6,7 @@ JavaScript total de la página de inicio: ~15 KB (el presupuesto era 200 KB).
 
 ## 1. Correr en local
 
-Requisitos: [Node.js](https://nodejs.org) 20 o superior.
+Requisitos: [Node.js](https://nodejs.org) 22.22 o superior (lo exige Astro 7).
 
 ```bash
 npm install
@@ -72,7 +72,7 @@ Copie `.env.example` a `.env`:
    - *Build command:* `npm run build`
    - *Build output directory:* `dist`
    - *Root directory:* `sitio` (solo si el repositorio contiene más carpetas)
-   - *Environment variables:* `SITE_URL` (por ejemplo `https://www.sudominio.mx`), `PUBLIC_FORM_ENDPOINT` y `NODE_VERSION` = `20`.
+   - *Environment variables:* `SITE_URL` (por ejemplo `https://www.sudominio.mx`), `PUBLIC_FORM_ENDPOINT` y `NODE_VERSION` = `22` (Astro 7 no compila con Node 20; el archivo `.node-version` también lo fija).
 5. **Dominio en Pages.** En el proyecto: **Custom domains → Set up a custom domain**. Como el DNS ya está en Cloudflare, crea los registros y el certificado HTTPS solo.
 6. Desde ahí, cada `git push` a la rama principal publica una versión nueva.
 

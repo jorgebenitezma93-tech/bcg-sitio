@@ -52,7 +52,7 @@ Marque cada casilla al terminar. Los nombres de botones pueden variar un poco en
 - [ ] **21. Agregar variables de entorno** (en *Environment variables*, para *Production*):
   - `SITE_URL` = `https://www.su-dominio.mx` (su dominio real, con https)
   - `PUBLIC_FORM_ENDPOINT` = `https://formspree.io/f/mnpjyopz`
-  - `NODE_VERSION` = `20`
+  - `NODE_VERSION` = `22`
 - [ ] **22. Desplegar:** *Save and Deploy*. Al terminar, Cloudflare da una dirección `algo.pages.dev`. Ábrala y revise el sitio completo.
 - [ ] **23. Conectar su dominio:** en el proyecto, pestaña **Custom domains** → *Set up a custom domain* → escriba `www.su-dominio.mx` (y también el dominio sin www si lo desea). Cloudflare crea el DNS y el certificado HTTPS solo; espere unos minutos hasta que diga «Active».
 
@@ -78,5 +78,5 @@ Cloudflare detecta el cambio y republica el sitio en 1–2 minutos.
 ## Si algo falla
 
 - **El formulario abre el correo en lugar de enviar:** falta `PUBLIC_FORM_ENDPOINT` en Cloudflare, o no se volvió a desplegar después de agregarla (*Deployments* → *Retry deployment*).
-- **La construcción falla en Cloudflare:** revise que `NODE_VERSION` sea `20` y que el comando sea `npm run build`.
+- **La construcción falla en Cloudflare:** revise que `NODE_VERSION` sea `22` (Astro 7 exige Node 22.22 o superior) y que el comando sea `npm run build`.
 - **El dominio no activa:** confirme en Akky que los nameservers sean exactamente los de Cloudflare.
